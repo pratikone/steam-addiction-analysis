@@ -33,12 +33,19 @@ def unachaar_it( file_name) : #unpickle it, pickle = achaar in Hindi
 
 
 if __name__ == '__main__' :
+    '''
+    Uncomment the lines below to fetch from database 
+
+    
     friends_list, user_games_list = sql_fetch.init()
     G  = create_graph(user_games_list)
     add_edges_friends(G, friends_list)
     print(G.number_of_edges())
     achaar_it(G, "achaar.p")
+    '''
+
     G = unachaar_it("achaar.p")
     print(G.number_of_edges())
+    print(G.number_of_nodes())
 
 
