@@ -5,6 +5,14 @@ import MySQLdb as mdb
 import sys
 from collections import namedtuple
 
+#friendly neighborhood tuples
+Steam_User = namedtuple('SteamUser', 'user_id')
+Steam_Games = namedtuple('SteamGames', ['user_id', 'game_id_list'])
+Steam_Friends = namedtuple('SteamFriend', 'user_id_a, user_id_b, since')
+
+
+
+
 def create_connection() :
   try:
       con = mdb.connect('localhost', 'root', 'root', 'steam');
@@ -22,7 +30,6 @@ def create_connection() :
       
 def get_user_id( connection ) :
   try :
-    Steam_User = namedtuple('SteamUser', 'user_id')
     my_good_list = []
     cur = connection.cursor()
     cur.execute("SELECT * FROM steam.player_summaries LIMIT 0, 500;")
@@ -38,10 +45,18 @@ def get_user_id( connection ) :
         connection.close()
       sys.exit(1)
 
+def get_user_id_from_friends( friends ) :
+  user_list = []
+  for entry in friends :
+     user_list.append(Steam_User(entry.user_id_a))
+     user_list.append(Steam_User(entry.user_id_b))
+  return user_list
+
+
+
 
 def get_games_list( connection, users ) :
   try :
-    Steam_Games = namedtuple('SteamGames', ['user_id', 'game_id_list'])
     user_games_list = []
     for user in users :
       my_good_list = []
@@ -64,12 +79,35 @@ def get_games_list( connection, users ) :
         connection.close()
       sys.exit(1)
 
+def get_user_via_friends( connection ) :
+  try :
+    friends_list = []
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM steam.friends LIMIT 0, 500 ;")
+    op = cur.fetchall()
+    for entry in op :
+      user = entry[0]
+      another_user = entry[1]
+      friends_since = entry[3]
+      friends_obj = Steam_Friends(user_id_a = user, user_id_b = another_user, since=friends_since )
+      friends_list.append( friends_obj )
+    return friends_list
+  except mdb.Error as e:
+      print( "Error %d: %s" % (e.args[0],e.args[1]))
+      if connection:    
+        connection.close()
+      sys.exit(1)
+
+
+
+
 
 def init() :
   connection = create_connection()
-  user_list = get_user_id( connection )
-  user_games_list = get_games_list(connection, user_list)
-  return user_games_list
+  # user_list = get_user_id( connection )
+  friends_list = get_user_via_friends( connection )
+  user_games_list = get_games_list(connection, get_user_id_from_friends( friends_list) )
+  return friends_list, user_games_list
 
 
 if __name__ == '__main__' :
