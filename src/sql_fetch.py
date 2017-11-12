@@ -9,7 +9,7 @@ from collections import namedtuple
 Steam_User = namedtuple('SteamUser', 'user_id')
 Steam_Games = namedtuple('SteamGames', ['user_id', 'game_id_list'])
 Steam_Friends = namedtuple('SteamFriend', 'user_id_a, user_id_b, since')
-
+Steam_User_Games = namedtuple('SteamUserGames', 'user_id, group_id, game_id')
 
 
 
@@ -127,6 +127,25 @@ def get_user_and_games_together(connection) :
       sys.exit(1)
 
 
+def fetch_user_group_games(connection) :
+  try :
+    final_list = []
+    cur = connection.cursor()
+    cur.execute("SELECT gr.steamid, gr.groupid, g2.appid FROM steam.groups as gr, steam.games_2 as g2 \
+                             where gr.steamid = g2.steamid  LIMIT 100000")
+    op = cur.fetchall()
+    for entry in op :
+      user_id = entry[0]
+      group_id = entry[1]
+      game_id = entry[2]
+      final_list.append(Steam_User_Games( user_id, group_id, game_id)  )
+    return final_list
+  except mdb.Error as e:
+      print( "Error %d: %s" % (e.args[0],e.args[1]))
+      if connection:    
+        connection.close()
+      sys.exit(1)
+
 
 
 
@@ -136,8 +155,9 @@ def init() :
   # friends_list = get_user_via_friends( connection )
   # user_games_list = get_games_list(connection, get_user_id_from_friends( friends_list) )
   
-  friends_list, user_games_list = get_user_and_games_together( connection )
-  return friends_list, user_games_list
+  # friends_list, user_games_list = get_user_and_games_together( connection )
+  # return friends_list, user_games_list
+  return fetch_user_group_games(connection)
 
 
 if __name__ == '__main__' :
