@@ -23,7 +23,7 @@ def add_edges_friends( G, friends_list ) :
 
 def achaar_it( G, file_name ) :  #pickle it, pickle = achaar in Hindi
     try :
-        pickle.dump( G, open( file_name, "wb" ) )
+        pickle.dump( G, open( file_name, "wb" ), protocol=2 )
     except pickle.PickleError as e :
         print("Could not pickle due to error ", e)
 
@@ -79,9 +79,10 @@ if __name__ == '__main__' :
     '''
 
 ##############################################################
-    # final_list = sql_fetch.init()
-    # arr = get_all( final_list )
-    # achaar_it(arr, "user_group_game_adj.p")
+    final_list = sql_fetch.init()
+    arr = get_all( final_list )
+    achaar_it(arr, "user_group_game_adj.p")
     arr = unachaar_it("user_group_game_adj.p")
+    arr = unachaar_it("user_group_game_adj.p",)
     print(np.shape(arr))
 

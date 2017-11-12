@@ -132,7 +132,7 @@ def fetch_user_group_games(connection) :
     final_list = []
     cur = connection.cursor()
     cur.execute("SELECT gr.steamid, gr.groupid, g2.appid FROM steam.groups as gr, steam.games_2 as g2 \
-                             where gr.steamid = g2.steamid  LIMIT 100000")
+                             where gr.steamid = g2.steamid  LIMIT 5000")
     op = cur.fetchall()
     for entry in op :
       user_id = entry[0]
