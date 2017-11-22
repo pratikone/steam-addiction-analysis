@@ -3,6 +3,7 @@ import numpy as np
 import sql_fetch
 import pickle
 import matplotlib.pyplot as plt
+import sys
 
 def create_graph( given_list ) :
     G = nx.Graph()
@@ -48,8 +49,10 @@ def get_all( final_list  ) :
         if entry.game_id not in all_games :
             all_games.append( entry.game_id )
 
-    print((len(all_users), len(all_groups), len(all_games)))
-    arr = np.zeros((len(all_users), len(all_groups), len(all_games)))
+    all_users_size, all_groups_size, all_games_size = len(set(all_users)), len(set(all_groups)), len(set(all_games))
+    # print(len(all_users), len(all_groups), len(all_games) )
+    print(all_users_size, all_groups_size, all_games_size)
+    arr = np.zeros((all_users_size, all_groups_size, all_games_size))
     for entry in final_list :
         user_index = all_users.index(entry.user_id)                     
         group_index = all_groups.index(entry.group_id)
@@ -79,10 +82,25 @@ if __name__ == '__main__' :
     '''
 
 ##############################################################
+    '''
     final_list = sql_fetch.init()
+    # achaar_it(final_list, "user_group_game_list.p")
     arr = get_all( final_list )
     achaar_it(arr, "user_group_game_adj.p")
+    '''
     arr = unachaar_it("user_group_game_adj.p")
-    arr = unachaar_it("user_group_game_adj.p",)
     print(np.shape(arr))
 
+    import numpy as np
+    import tensorflow as tf
+    from scipy.io.matlab import loadmat
+    sys.path.insert(0,'../../tf-decompose')
+    from ktensor import KruskalTensor
+
+    X = arr
+    # Build ktensor and learn CP decomposition using ALS with specified optimizer
+    T = KruskalTensor(X.shape, rank=3, regularize=1e-6, init='nvecs', X_data=X)
+    X_predict = T.train_als(X, tf.train.AdadeltaOptimizer(0.05), epochs=20000)
+    
+# Save reconstructed tensor to file
+    
