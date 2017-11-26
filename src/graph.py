@@ -62,34 +62,38 @@ def get_all( final_list  ) :
 
 
 
+def create_list_user_group_game_playtime( final_list ) :
+    a_large_list = []
+    stats_users = set()
+    stats_groups = set()
+    stats_games = set()
+    for entry in final_list :
+        inner_list = []
+        inner_list.append( entry.user_id )
+        inner_list.append( entry.group_id )
+        inner_list.append( entry.game_id )
+        inner_list.append( entry.playtime )
+        a_large_list.append( inner_list )
 
-if __name__ == '__main__' :
-    '''
-    Uncomment the lines below to fetch from database 
+        stats_users.add( entry.user_id )
+        stats_groups.add( entry.group_id )
+        stats_games.add( entry.game_id )
 
-    friends_list, user_games_list = sql_fetch.init()
-    G  = create_graph(user_games_list)
-    add_edges_friends(G, friends_list)
-    achaar_it(G, "achaar.p")
-    
+    print(  " users : {} groups : {}  games {} ".format(  len(stats_users), len(stats_groups), len(stats_games)    )    )
+    if None in stats_users or None in stats_groups or None in stats_games : print("None is found. Clean the data")
+    return a_large_list
 
-    G = unachaar_it("achaar.p")
-    print("edges", G.number_of_edges())
-    print("nodes", G.number_of_nodes())
-    # print(nx.betweenness_centrality(G))
-    # print( nx.number_connected_components(G))
-    # print(sorted(nx.triangles(G).values()))
-    '''
 
-##############################################################
-    '''
+
+
+def init_1() :
     final_list = sql_fetch.init()
     # achaar_it(final_list, "user_group_game_list.p")
     arr = get_all( final_list )
     achaar_it(arr, "user_group_game_adj.p")
-    '''
     arr = unachaar_it("user_group_game_adj.p")
     print(np.shape(arr))
+    print(arr[arr==1].shape)
 
     import numpy as np
     import tensorflow as tf
@@ -99,8 +103,33 @@ if __name__ == '__main__' :
 
     X = arr
     # Build ktensor and learn CP decomposition using ALS with specified optimizer
-    T = KruskalTensor(X.shape, rank=3, regularize=1e-6, init='nvecs', X_data=X)
-    X_predict = T.train_als(X, tf.train.AdadeltaOptimizer(0.05), epochs=20000)
+    T = KruskalTensor(X.shape, rank=300, regularize=1e-6, init='nvecs', X_data=X)
+    X_predict = T.train_als(X, tf.train.AdadeltaOptimizer(0.05), epochs=1)
     
-# Save reconstructed tensor to file
-    
+
+def init_2() :
+    friends_list, user_games_list = sql_fetch.init()
+    G  = create_graph(user_games_list)
+    add_edges_friends(G, friends_list)
+    achaar_it(G, "achaar.p")
+    G = unachaar_it("achaar.p")
+    print("edges", G.number_of_edges())
+    print("nodes", G.number_of_nodes())
+    # print(nx.betweenness_centrality(G))
+    # print( nx.number_connected_components(G))
+    # print(sorted(nx.triangles(G).values()))
+
+
+def init_3() :
+    final_list = sql_fetch.init()
+    data = create_list_user_group_game_playtime( final_list )
+    # print(data)
+    achaar_it(data, "user_groups_games_playtime.p")
+    new_data = unachaar_it("user_groups_games_playtime.p")
+    for d in new_data :
+        print(d)
+
+
+
+if __name__ == '__main__' :
+    init_3()    
