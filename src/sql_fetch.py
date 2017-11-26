@@ -11,6 +11,7 @@ Steam_Games = namedtuple('SteamGames', ['user_id', 'game_id_list'])
 Steam_Friends = namedtuple('SteamFriend', 'user_id_a, user_id_b, since')
 Steam_User_Groups = namedtuple('SteamUserGroups', 'user_id, group_id')
 Steam_User_Games = namedtuple('SteamUserGames', 'user_id, group_id, game_id')
+Steam_User_Games_Playtime = namedtuple('SteamUserGamesPlaytime', 'user_id, group_id, game_id, playtime')
 
 
 
@@ -128,7 +129,7 @@ def create_connection() :
 #       sys.exit(1)
 
 
-def fetch_user_group_games(connection) :
+def fetch_user_group_games_playtime(connection) :
   try :
     final_list = []
     cur = connection.cursor()
@@ -155,16 +156,20 @@ def fetch_user_group_games(connection) :
       op = cur.fetchall()
       for entry in op :    
         groupid = entry[1]
+        if groupid is None : continue
         user_groups.append(  Steam_User_Groups(user, groupid) )
 
     #get games
     user_groups_games = []
     for i in user_groups :
-      cur.execute(" SELECT steamid, appid from steam.games_1 where steamid={} limit 15;".format(i.user_id)  )
+      cur.execute(" SELECT steamid, appid, playtime_forever from steam.games_1 where steamid={} limit 15;".format(i.user_id)  )
       op = cur.fetchall()
       for entry in op :    
         game_id = entry[1]
-        user_groups_games.append( Steam_User_Games( i.user_id, i.group_id, game_id) )
+        if game_id is None :      continue
+        playtime_forever = entry[2]
+        if playtime_forever is None :    continue
+        user_groups_games.append( Steam_User_Games_Playtime( i.user_id, i.group_id, game_id, playtime_forever) )
 
     return user_groups_games
   except mdb.Error as e:
@@ -184,7 +189,7 @@ def init() :
   
   # friends_list, user_games_list = get_user_and_games_together( connection )
   # return friends_list, user_games_list
-  return fetch_user_group_games(connection)
+  return fetch_user_group_games_playtime(connection)
 
 
 if __name__ == '__main__' :
