@@ -7,14 +7,25 @@ import sys
 
 def create_graph( given_list ) :
     G = nx.Graph()
-    for user_obj in given_list :
-        user = user_obj.user_id
-        games_id = user_obj.game_id_list
-        if type(games_id) == type([]) :  #if it is a list
-            for game in games_id : 
-                G.add_edge( user, game )
-        else : # if it is an entry
-            G.add_edge( user, games_id )
+    for entry in given_list :
+        user = str(entry[0])+"u"
+        group = str(entry[1])+"p"
+        game = str(entry[2])+"g"
+        playtime = entry[3]
+        if user not in G.nodes() :
+            G.add_node(user, type="user", playtime = 0)
+        if group not in G.nodes() :
+            G.add_node(group, type="group")
+        if game not in G.nodes() :
+            G.add_node(game, type="game", playtime = 0)
+        if G.has_edge(user, group ) is False :
+            G.add_edge( user, group )
+        if G.has_edge( user, game ) is False :
+            G.add_edge( user, game)
+            if game == 4560 :
+                print(group, game, G.nodes[game])
+            G.nodes[user]['playtime'] += playtime
+            G.nodes[game]['playtime'] += playtime
     return G
 
 
@@ -83,6 +94,33 @@ def create_list_user_group_game_playtime( final_list ) :
     if None in stats_users or None in stats_groups or None in stats_games : print("None is found. Clean the data")
     return a_large_list
 
+def draw_graph(G) :
+    pos=nx.spring_layout(G) # positions for all nodes
+    # nodes
+    nx.draw_networkx_nodes(G,pos,
+                       nodelist=[x for x in G.nodes() if G.nodes[x]['type'] == "user"],
+                       node_color='r',
+                       node_size=10,
+                   alpha=0.8)
+    nx.draw_networkx_nodes(G,pos,
+                       nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "group"],
+                       node_color='b',
+                       node_size=10,
+                   alpha=0.8)
+
+    nx.draw_networkx_nodes(G,pos,
+                       nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "game"],
+                       node_color='g',
+                       node_size=10,
+                   alpha=0.8)
+
+
+    # edges
+    nx.draw_networkx_edges(G,pos,
+                       edgelist = G.edges(),
+                       width=0.2,alpha=0.5,edge_color='k')
+    plt.show()
+
 
 
 
@@ -121,15 +159,23 @@ def init_2() :
 
 
 def init_3() :
-    final_list = sql_fetch.init()
-    data = create_list_user_group_game_playtime( final_list )
+    #final_list = sql_fetch.init()
+    #data = create_list_user_group_game_playtime( final_list )
     # print(data)
-    achaar_it(data, "user_groups_games_playtime.p")
-    new_data = unachaar_it("user_groups_games_playtime.p")
-    for d in new_data :
-        print(d)
-
-
+    #achaar_it(data, "user_groups_games_playtime.p")
+    data = unachaar_it("user_groups_games_playtime.p")
+    return data
 
 if __name__ == '__main__' :
-    init_3()    
+    data = init_3()  
+    G = create_graph(data)
+    draw_graph(G)
+    playtime_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "user" ]
+    plt.plot( sorted(playtime_list))
+    plt.ylabel('playing mins')
+    plt.title("Users")
+    plt.show()
+    playtime_game_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "game" ]
+    plt.plot( sorted(playtime_game_list))
+    plt.title("Games")
+    plt.show()
