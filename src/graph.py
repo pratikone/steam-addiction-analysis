@@ -4,6 +4,7 @@ import sql_fetch
 import pickle
 import matplotlib.pyplot as plt
 import sys
+from networkx.algorithms.community import k_clique_communities
 
 def create_graph( given_list ) :
     G = nx.Graph()
@@ -70,6 +71,23 @@ def get_all( final_list  ) :
         game_index = all_games.index(entry.game_id)
         arr[user_index, group_index, game_index] = 1
     return arr
+
+
+
+
+def show() :
+    G = create_graph(data)
+    draw_graph(G)
+    playtime_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "user" ]
+    plt.plot( sorted(playtime_list))
+    plt.ylabel('playing mins')
+    plt.title("Users")
+    plt.show()
+    playtime_game_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "game" ]
+    plt.plot( sorted(playtime_game_list))
+    plt.title("Games")
+    plt.show()
+
 
 
 
@@ -167,15 +185,9 @@ def init_3() :
     return data
 
 if __name__ == '__main__' :
-    data = init_3()  
-    G = create_graph(data)
-    draw_graph(G)
-    playtime_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "user" ]
-    plt.plot( sorted(playtime_list))
-    plt.ylabel('playing mins')
-    plt.title("Users")
-    plt.show()
-    playtime_game_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "game" ]
-    plt.plot( sorted(playtime_game_list))
-    plt.title("Games")
-    plt.show()
+    init_2()
+    #data = init_3()
+    # G = create_graph(data)
+    # c = list(k_clique_communities(G, 2))
+    # print(len(c))
+    
