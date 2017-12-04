@@ -5,6 +5,9 @@ import pickle
 import matplotlib.pyplot as plt
 import sys
 from networkx.algorithms.community import k_clique_communities
+from networkx.algorithms.approximation import k_components
+import community
+from visualization import *
 
 def create_graph( given_list ) :
     G = nx.Graph()
@@ -22,11 +25,9 @@ def create_graph( given_list ) :
         if G.has_edge(user, group ) is False :
             G.add_edge( user, group )
         if G.has_edge( user, game ) is False :
-            G.add_edge( user, game)
-            if game == 4560 :
-                print(group, game, G.nodes[game])
             G.nodes[user]['playtime'] += playtime
             G.nodes[game]['playtime'] += playtime
+            G.add_edge( user, game, weight = playtime)
     return G
 
 
@@ -75,21 +76,6 @@ def get_all( final_list  ) :
 
 
 
-def show() :
-    G = create_graph(data)
-    draw_graph(G)
-    playtime_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "user" ]
-    plt.plot( sorted(playtime_list))
-    plt.ylabel('playing mins')
-    plt.title("Users")
-    plt.show()
-    playtime_game_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "game" ]
-    plt.plot( sorted(playtime_game_list))
-    plt.title("Games")
-    plt.show()
-
-
-
 
 def create_list_user_group_game_playtime( final_list ) :
     a_large_list = []
@@ -112,32 +98,6 @@ def create_list_user_group_game_playtime( final_list ) :
     if None in stats_users or None in stats_groups or None in stats_games : print("None is found. Clean the data")
     return a_large_list
 
-def draw_graph(G) :
-    pos=nx.spring_layout(G) # positions for all nodes
-    # nodes
-    nx.draw_networkx_nodes(G,pos,
-                       nodelist=[x for x in G.nodes() if G.nodes[x]['type'] == "user"],
-                       node_color='r',
-                       node_size=10,
-                   alpha=0.8)
-    nx.draw_networkx_nodes(G,pos,
-                       nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "group"],
-                       node_color='b',
-                       node_size=10,
-                   alpha=0.8)
-
-    nx.draw_networkx_nodes(G,pos,
-                       nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "game"],
-                       node_color='g',
-                       node_size=10,
-                   alpha=0.8)
-
-
-    # edges
-    nx.draw_networkx_edges(G,pos,
-                       edgelist = G.edges(),
-                       width=0.2,alpha=0.5,edge_color='k')
-    plt.show()
 
 
 
@@ -182,12 +142,11 @@ def init_3() :
     # print(data)
     #achaar_it(data, "user_groups_games_playtime.p")
     data = unachaar_it("user_groups_games_playtime.p")
-    return data
+    data = init_3()
+    G = create_graph(data)
+    partition = community.best_partition(G)  # compute communities
+    create_graph_partition_viz(G, partition)
 
 if __name__ == '__main__' :
-    init_2()
-    #data = init_3()
-    # G = create_graph(data)
-    # c = list(k_clique_communities(G, 2))
-    # print(len(c))
+    init_3()
     
