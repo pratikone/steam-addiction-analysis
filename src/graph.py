@@ -5,12 +5,9 @@ import pickle
 import matplotlib.pyplot as plt
 import sys
 from networkx.algorithms.community import k_clique_communities
-<<<<<<< HEAD
 from networkx.algorithms.approximation import k_components
 import community
 from visualization import *
-=======
->>>>>>> 556a8088fdd5d7839cba32c5afcaa035a583720e
 
 def create_graph( given_list ) :
     G = nx.Graph()
