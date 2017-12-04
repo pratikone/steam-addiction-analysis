@@ -5,9 +5,12 @@ import pickle
 import matplotlib.pyplot as plt
 import sys
 from networkx.algorithms.community import k_clique_communities
+<<<<<<< HEAD
 from networkx.algorithms.approximation import k_components
 import community
 from visualization import *
+=======
+>>>>>>> 556a8088fdd5d7839cba32c5afcaa035a583720e
 
 def create_graph( given_list ) :
     G = nx.Graph()
@@ -76,6 +79,24 @@ def get_all( final_list  ) :
 
 
 
+<<<<<<< HEAD
+=======
+def show() :
+    G = create_graph(data)
+    draw_graph(G)
+    playtime_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "user" ]
+    plt.plot( sorted(playtime_list))
+    plt.ylabel('playing mins')
+    plt.title("Users")
+    plt.show()
+    playtime_game_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "game" ]
+    plt.plot( sorted(playtime_game_list))
+    plt.title("Games")
+    plt.show()
+
+
+
+>>>>>>> 556a8088fdd5d7839cba32c5afcaa035a583720e
 
 def create_list_user_group_game_playtime( final_list ) :
     a_large_list = []
@@ -148,5 +169,10 @@ def init_3() :
     create_graph_partition_viz(G, partition)
 
 if __name__ == '__main__' :
-    init_3()
+    #init_3()
+    init_2()
+    #data = init_3()
+    # G = create_graph(data)
+    # c = list(k_clique_communities(G, 2))
+    # print(len(c))
     
