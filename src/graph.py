@@ -76,8 +76,6 @@ def get_all( final_list  ) :
 
 
 
-<<<<<<< HEAD
-=======
 def show() :
     G = create_graph(data)
     draw_graph(G)
@@ -90,10 +88,6 @@ def show() :
     plt.plot( sorted(playtime_game_list))
     plt.title("Games")
     plt.show()
-
-
-
->>>>>>> 556a8088fdd5d7839cba32c5afcaa035a583720e
 
 def create_list_user_group_game_playtime( final_list ) :
     a_large_list = []
@@ -116,6 +110,32 @@ def create_list_user_group_game_playtime( final_list ) :
     if None in stats_users or None in stats_groups or None in stats_games : print("None is found. Clean the data")
     return a_large_list
 
+def draw_graph(G) :
+    pos=nx.spring_layout(G) # positions for all nodes
+    # nodes
+    nx.draw_networkx_nodes(G,pos,
+                       nodelist=[x for x in G.nodes() if G.nodes[x]['type'] == "user"],
+                       node_color='r',
+                       node_size=10,
+                   alpha=0.8)
+    nx.draw_networkx_nodes(G,pos,
+                       nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "group"],
+                       node_color='b',
+                       node_size=10,
+                   alpha=0.8)
+
+    nx.draw_networkx_nodes(G,pos,
+                       nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "game"],
+                       node_color='g',
+                       node_size=10,
+                   alpha=0.8)
+
+
+    # edges
+    nx.draw_networkx_edges(G,pos,
+                       edgelist = G.edges(),
+                       width=0.2,alpha=0.5,edge_color='k')
+    plt.show()
 
 
 
