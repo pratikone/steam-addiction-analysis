@@ -9,25 +9,31 @@ from networkx.algorithms.approximation import k_components
 import community
 from visualization import *
 
-def create_graph( given_list ) :
+def create_graph( given_list_tuple ) :
     G = nx.Graph()
-    for entry in given_list :
-        user = str(entry[0])+"u"
-        group = str(entry[1])+"p"
-        game = str(entry[2])+"g"
-        playtime = entry[3]
-        if user not in G.nodes() :
-            G.add_node(user, type="user", playtime = 0)
-        if group not in G.nodes() :
-            G.add_node(group, type="group")
-        if game not in G.nodes() :
-            G.add_node(game, type="game", playtime = 0)
-        if G.has_edge(user, group ) is False :
-            G.add_edge( user, group )
-        if G.has_edge( user, game ) is False :
-            G.nodes[user]['playtime'] += playtime
-            G.nodes[game]['playtime'] += playtime
-            G.add_edge( user, game, weight = playtime)
+    for given_list in given_list_tuple :
+        for entry in given_list :
+            user = str(entry[0])+"u"
+            if user not in G.nodes() :
+                G.add_node(user, type="user", playtime = 0)
+
+            if len(entry) == 3 :  #harcoded user groups playtime
+                group = str(entry[1])+"p"
+                if group not in G.nodes() :
+                    G.add_node(group, type="group")
+                if G.has_edge(user, group ) is False :
+                    G.add_edge( user, group )
+            else :
+                game = str(entry[1])+"g"
+                playtime = int(entry[2])
+                genre = entry[3]
+                if game not in G.nodes() :
+                    G.add_node(game, type="game", playtime = 0, genre=None)
+                if G.has_edge( user, game ) is False :
+                    G.nodes[game]['genre'] = genre
+                    G.nodes[user]['playtime'] += playtime
+                    G.nodes[game]['playtime'] += playtime
+                    G.add_edge( user, game, weight = playtime)
     return G
 
 
@@ -89,26 +95,28 @@ def show() :
     plt.title("Games")
     plt.show()
 
-def create_list_user_group_game_playtime( final_list ) :
+def create_list_user_group_game_playtime( final_lists ) :  #final_lists is user_groups, user_games
     a_large_list = []
-    stats_users = set()
-    stats_groups = set()
-    stats_games = set()
-    for entry in final_list :
-        inner_list = []
-        inner_list.append( entry.user_id )
-        inner_list.append( entry.group_id )
-        inner_list.append( entry.game_id )
-        inner_list.append( entry.playtime )
-        a_large_list.append( inner_list )
+    user_groups_list = []
+    user_games_list = []
 
-        stats_users.add( entry.user_id )
-        stats_groups.add( entry.group_id )
-        stats_games.add( entry.game_id )
-
-    print(  " users : {} groups : {}  games {} ".format(  len(stats_users), len(stats_groups), len(stats_games)    )    )
-    if None in stats_users or None in stats_groups or None in stats_games : print("None is found. Clean the data")
-    return a_large_list
+    for final_inner_list in final_lists :
+        for entry in final_inner_list :
+            inner_list = []
+            inner_list.append( entry.user_id )
+            if type(entry) == type(sql_fetch.dummy_Steam_User_Groups) :
+                inner_list.append( entry.group_id )
+                inner_list.append( 1 )
+            else :
+                inner_list.append( entry.game_id )
+                inner_list.append( entry.playtime )
+                inner_list.append( entry.genre )
+            a_large_list.append( inner_list )
+        if type(entry) == type(sql_fetch.dummy_Steam_User_Groups) :
+            user_groups_list = a_large_list
+        else :
+            user_games_list = a_large_list
+    return (user_groups_list, user_games_list)
 
 def draw_graph(G) :
     pos=nx.spring_layout(G) # positions for all nodes
@@ -162,10 +170,10 @@ def init_1() :
     
 
 def init_2() :
-    friends_list, user_games_list = sql_fetch.init()
-    G  = create_graph(user_games_list)
-    add_edges_friends(G, friends_list)
-    achaar_it(G, "achaar.p")
+    #friends_list, user_games_list = sql_fetch.init()
+    #G  = create_graph(user_games_list)
+    #add_edges_friends(G, friends_list)
+    #achaar_it(G, "achaar.p")
     G = unachaar_it("achaar.p")
     print("edges", G.number_of_edges())
     print("nodes", G.number_of_nodes())
@@ -175,21 +183,15 @@ def init_2() :
 
 
 def init_3() :
-    #final_list = sql_fetch.init()
-    #data = create_list_user_group_game_playtime( final_list )
+    final_lists = sql_fetch.init()
+    data = create_list_user_group_game_playtime( final_lists )
     # print(data)
-    #achaar_it(data, "user_groups_games_playtime.p")
-    data = unachaar_it("user_groups_games_playtime.p")
-    data = init_3()
+    achaar_it(data, "user_data.p")
+    data = unachaar_it("user_data.p")
     G = create_graph(data)
     partition = community.best_partition(G)  # compute communities
     create_graph_partition_viz(G, partition)
 
 if __name__ == '__main__' :
-    #init_3()
-    init_2()
-    #data = init_3()
-    # G = create_graph(data)
-    # c = list(k_clique_communities(G, 2))
-    # print(len(c))
+    init_3()
     

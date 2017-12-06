@@ -8,6 +8,7 @@ from networkx.algorithms.community import k_clique_communities
 from networkx.algorithms.approximation import k_components
 import community
 from visualization import *
+from functools import reduce
 
 def draw_graph(G) :
     pos=nx.spring_layout(G) # positions for all nodes
@@ -64,8 +65,16 @@ def create_graph_partition_viz(G, partition) :
         comms[comm].add(node)
     print(len(comms.keys()))
     for key in comms :
-        print(key, len(comms[key]))
-        nx.draw_networkx_nodes(G, pos, nodelist = list(comms[key]) ,node_size=10, node_color= colors[key])
+    #    calculate_playtime_community(G, comms[key])
+        # print(key, len(comms[key]))
+        nx.draw_networkx_nodes(G, pos, nodelist = list(comms[key]) ,node_size=10, node_color= 'r')
     nx.draw_networkx_edges(G, pos, alpha=0.1)
     plt.show(G)
     
+def calculate_playtime_community(G, node_list) :
+  nodes = set()
+  for node in node_list :
+    for n in G.neighbors(node) :
+      if n in node_list and (node,n) not in nodes or (n,node) not in nodes:
+        nodes.add((node,n))
+  print(reduce( lambda x,y : x + G.edges[y]['weight'] , nodes     ))

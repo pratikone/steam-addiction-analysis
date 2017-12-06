@@ -10,10 +10,12 @@ Steam_User = namedtuple('SteamUser', 'user_id')
 Steam_Games = namedtuple('SteamGames', ['user_id', 'game_id_list'])
 Steam_Friends = namedtuple('SteamFriend', 'user_id_a, user_id_b, since')
 Steam_User_Groups = namedtuple('SteamUserGroups', 'user_id, group_id')
-Steam_User_Games = namedtuple('SteamUserGames', 'user_id, group_id, game_id')
-Steam_User_Games_Playtime = namedtuple('SteamUserGamesPlaytime', 'user_id, group_id, game_id, playtime')
+# Steam_User_Games_Playtime_Genre = namedtuple('SteamUserGamesPlaytimeGenre', 'user_id, group_id, game_id, playtime')
+Steam_User_Games = namedtuple('SteamUserGames', 'user_id, game_id, playtime, genre')
 
 
+dummy_Steam_User_Groups = Steam_User_Groups(0,0)
+dummy_Steam_User_Games = Steam_User_Games(0,0,0,0)
 
 def create_connection() :
   try:
@@ -29,105 +31,6 @@ def create_connection() :
       if con:    
           con.close()
       sys.exit(1)
-      
-# def get_user_id( connection ) :
-#   try :
-#     my_good_list = []
-#     cur = connection.cursor()
-#     cur.execute("SELECT * FROM steam.player_summaries LIMIT 0, 500;")
-#     op = cur.fetchall()
-#     for entry in op :
-#       user = Steam_User(entry[0])
-#       my_good_list.append(user)
-
-#     return my_good_list
-#   except mdb.Error as e:
-#       print( "Error %d: %s" % (e.args[0],e.args[1]))
-#       if connection:    
-#         connection.close()
-#       sys.exit(1)
-
-# def get_user_id_from_friends( friends ) :
-#   user_list = []
-#   for entry in friends :
-#      user_list.append(Steam_User(entry.user_id_a))
-#      user_list.append(Steam_User(entry.user_id_b))
-#   return user_list
-
-# def get_games_list( connection, users ) :
-#   try :
-#     user_games_list = []
-#     for user in users :
-#       my_good_list = []
-#       cur = connection.cursor()
-#       cur.execute("SELECT * FROM steam.games_1 where steamid='{}' LIMIT 10000, 500;".format(user.user_id))
-#       op = cur.fetchall()
-#       for entry in op :
-#         my_good_list.append(entry[1])
-        
-#       user_game = Steam_Games(user.user_id, my_good_list)
-      
-#       if user_game.game_id_list :      #prevent empty lists
-#         user_games_list.append(user_game)
-
-
-#     return user_games_list
-#   except mdb.Error as e:
-#       print( "Error %d: %s" % (e.args[0],e.args[1]))
-#       if connection:    
-#         connection.close()
-#       sys.exit(1)
-
-# def get_user_via_friends( connection ) :
-#   try :
-#     friends_list = []
-#     cur = connection.cursor()
-#     cur.execute("SELECT * FROM steam.friends LIMIT 100000, 5000;")
-#     op = cur.fetchall()
-#     for entry in op :
-#       user = entry[0]
-#       another_user = entry[1]
-#       friends_since = entry[3]
-#       friends_obj = Steam_Friends(user_id_a = user, user_id_b = another_user, since=friends_since )
-#       friends_list.append( friends_obj )
-#     return friends_list
-#   except mdb.Error as e:
-#       print( "Error %d: %s" % (e.args[0],e.args[1]))
-#       if connection:    
-#         connection.close()
-#       sys.exit(1)
-
-
-# def get_user_and_games_together(connection) :
-#   try :
-#     friends_list = []
-#     user_games_list = []
-#     cur = connection.cursor()
-#     cur.execute("SELECT f.steamid_a, f.steamid_b, f.friend_since, g.steamid, g.appid from steam.friends as f,\
-#                            steam.games_1 as g where g.steamid = f.steamid_a or g.steamid = f.steamid_b LIMIT 0, 5000000;")
-#     op = cur.fetchall()
-#     for entry in op :
-#       user = entry[0]
-#       another_user = entry[1]
-#       friends_since = entry[2]
-#       game_user = entry[3]
-#       game_id = entry[4]
-
-#       friends_obj = Steam_Friends(user_id_a = user, user_id_b = another_user, since=friends_since )
-#       friends_list.append( friends_obj )
-#       if user == game_user :
-#         entry_user = user
-#       else :
-#         entry_user = another_user
-#       user_game = Steam_Games(entry_user, game_id)
-#       user_games_list.append(user_game)
-#     return friends_list, user_games_list
-#   except mdb.Error as e:
-#       print( "Error %d: %s" % (e.args[0],e.args[1]))
-#       if connection:    
-#         connection.close()
-#       sys.exit(1)
-
 
 def fetch_user_group_games_playtime(connection) :
   try :
@@ -160,7 +63,7 @@ def fetch_user_group_games_playtime(connection) :
         user_groups.append(  Steam_User_Groups(user, groupid) )
 
     #get games
-    user_groups_games = []
+    user_games = []
     for i in user_groups :
       cur.execute(" SELECT steamid, appid, playtime_forever from steam.games_1 where steamid={} limit 15;".format(i.user_id)  )
       op = cur.fetchall()
@@ -169,9 +72,12 @@ def fetch_user_group_games_playtime(connection) :
         if game_id is None :      continue
         playtime_forever = entry[2]
         if playtime_forever is None :    continue
-        user_groups_games.append( Steam_User_Games_Playtime( i.user_id, i.group_id, game_id, playtime_forever) )
+        cur.execute("SELECT Genre FROM steam.games_genres where appid={} LIMIT 1;".format(game_id) )
+        op = cur.fetchall()
+        for entry in op :
+          user_games.append( Steam_User_Games( i.user_id, game_id, playtime_forever, entry[0]) )
 
-    return user_groups_games
+    return user_groups, user_games
   except mdb.Error as e:
       print( "Error %d: %s" % (e.args[0],e.args[1]))
       if connection:    
