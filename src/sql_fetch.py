@@ -8,7 +8,7 @@ from collections import namedtuple
 #friendly neighborhood tuples
 Steam_User = namedtuple('SteamUser', 'user_id')
 Steam_Games = namedtuple('SteamGames', ['user_id', 'game_id_list'])
-Steam_Friends = namedtuple('SteamFriend', 'user_id_a, user_id_b, since')
+Steam_Friends = namedtuple('SteamFriend', 'user_id_a, user_id_b')
 Steam_User_Groups = namedtuple('SteamUserGroups', 'user_id, group_id')
 # Steam_User_Games_Playtime_Genre = namedtuple('SteamUserGamesPlaytimeGenre', 'user_id, group_id, game_id, playtime')
 Steam_User_Games = namedtuple('SteamUserGames', 'user_id, game_id, playtime, genre')
@@ -46,7 +46,7 @@ def fetch_user_group_games_playtime(connection) :
     
 
     #get users
-    cur.execute(" SELECT steamid from steam.player_summaries limit 1000, 2500 ;")
+    cur.execute(" SELECT steamid from steam.player_summaries limit 1000, 12500 ;")
     op = cur.fetchall()
     user_list = []
     for entry in op :    
@@ -65,7 +65,7 @@ def fetch_user_group_games_playtime(connection) :
     #get games
     user_games = []
     for i in user_groups :
-      cur.execute(" SELECT steamid, appid, playtime_forever from steam.games_1 where steamid={} limit 15;".format(i.user_id)  )
+      cur.execute(" SELECT steamid, appid, playtime_forever from steam.games_1 where steamid={} limit 150;".format(i.user_id)  )
       op = cur.fetchall()
       for entry in op :    
         game_id = entry[1]
@@ -83,6 +83,35 @@ def fetch_user_group_games_playtime(connection) :
       if connection:    
         connection.close()
       sys.exit(1)
+
+def find_friends_from_user_groups(user_groups) :
+    users = set()
+    for i in user_groups :
+      users.add( i.user_id )
+    return find_friends(users)
+
+def find_friends(users) :
+  connection = create_connection()
+  cur = connection.cursor()
+  friends = []
+  try :
+    for user in users :
+      cur.execute("SELECT * FROM steam.friends where steamid_a = {0} or steamid_b = {0};".format(user) )
+      op = cur.fetchall()
+      for entry in op :
+        if entry[0] == user :
+          friend = entry[1]
+        else :
+          friend = entry[0]
+        if friend in users :
+          friends.append( (user, friend))
+  except mdb.Error as e:
+    print( "Error %d: %s" % (e.args[0],e.args[1]))
+    if connection:    
+      connection.close()
+    sys.exit(1)
+  return friends
+
 
 
 

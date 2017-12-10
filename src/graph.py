@@ -8,8 +8,9 @@ from networkx.algorithms.community import k_clique_communities
 from networkx.algorithms.approximation import k_components
 import community
 from visualization import *
+from collections import Counter
 
-def create_graph( given_list_tuple ) :
+def create_graph( given_list_tuple, friends = None ) :
     G = nx.Graph()
     for given_list in given_list_tuple :
         for entry in given_list :
@@ -22,7 +23,7 @@ def create_graph( given_list_tuple ) :
                 if group not in G.nodes() :
                     G.add_node(group, type="group")
                 if G.has_edge(user, group ) is False :
-                    G.add_edge( user, group )
+                    G.add_edge( user, group, weight = 1 )
             else :
                 game = str(entry[1])+"g"
                 playtime = int(entry[2])
@@ -34,6 +35,12 @@ def create_graph( given_list_tuple ) :
                     G.nodes[user]['playtime'] += playtime
                     G.nodes[game]['playtime'] += playtime
                     G.add_edge( user, game, weight = playtime)
+    if friends is not None :
+        for f in friends :
+            nodeA = str(f[0]) + 'u'
+            nodeB = str(f[1]) + 'u'
+            G.add_edge( nodeA, nodeB, weight=1)
+
     return G
 
 
@@ -78,6 +85,27 @@ def get_all( final_list  ) :
         game_index = all_games.index(entry.game_id)
         arr[user_index, group_index, game_index] = 1
     return arr
+
+
+def stats( G, partition) :
+    print("Nodes :", G.number_of_nodes())
+    print("Edges :", G.number_of_edges())
+    print("partitions", len(set(partition.values())))
+    temp_game_genre_list = []
+    avg_playtime = {}
+    for node in G.nodes() :
+        if G.nodes[node]['type'] == 'game' :
+            genre = G.nodes[node]['genre'] 
+            temp_game_genre_list.append(genre )
+            if genre in avg_playtime : 
+                avg_playtime[genre] +=  G.nodes[node]['playtime']
+                avg_playtime[genre] =  round(avg_playtime[genre] / 2.0)
+            else :
+                avg_playtime[genre] = 0
+
+    c = Counter(temp_game_genre_list)
+    print(c.most_common())
+    print(avg_playtime)
 
 
 
@@ -185,12 +213,17 @@ def init_2() :
 def init_3() :
     final_lists = sql_fetch.init()
     data = create_list_user_group_game_playtime( final_lists )
-    # print(data)
     achaar_it(data, "user_data.p")
+    friends = sql_fetch.find_friends_from_user_groups(final_lists[0])
+    achaar_it(friends, "user_friends.p")
+
     data = unachaar_it("user_data.p")
-    G = create_graph(data)
+    friends = unachaar_it("user_friends.p")
+    G = create_graph(data, friends)
     partition = community.best_partition(G)  # compute communities
-    create_graph_partition_viz(G, partition)
+    stats(G, partition)
+    #create_graph_partition_viz(G, partition)
+
 
 if __name__ == '__main__' :
     init_3()

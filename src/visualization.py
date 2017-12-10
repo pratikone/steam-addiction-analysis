@@ -65,11 +65,9 @@ def create_graph_partition_viz(G, partition) :
         comms[comm].add(node)
     print(len(comms.keys()))
     for key in comms :
-    #    calculate_playtime_community(G, comms[key])
-        # print(key, len(comms[key]))
         nx.draw_networkx_nodes(G, pos, nodelist = list(comms[key]) ,node_size=10, node_color= 'r')
-    nx.draw_networkx_edges(G, pos, alpha=0.1)
-    plt.show(G)
+    nx.draw_networkx_edges(G, pos, alpha=0.1, edge_color='k', style='solid')
+    plt.show()
     
 def calculate_playtime_community(G, node_list) :
   nodes = set()
