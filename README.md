@@ -12,7 +12,7 @@ Given this problem formulation, our objective in this paper is to develop a mode
 ### Results
 
 ![alt text](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/users50K.png "Playtime vs users")
-  
+![alt text](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/for50kusers.png "Playtime by genre")
 
 ### How to run
 * Requires python 3 to run       
