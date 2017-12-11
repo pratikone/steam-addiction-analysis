@@ -14,8 +14,10 @@ Given this problem formulation, our objective in this paper is to develop a mode
 ### Results
 
 ![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/users50K.png "Playtime vs users")
-![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/for50kusers.PNG "Playtime by genre")
-
+![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/for50kusers.PNG "Playtime by genre")    
+![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/pca_users.png "PCA - Users")    
+![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/pca_games.png "PCA - Games")    
+![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/pca_communities.png "PCA - Communities")        
 ### How to run
 * Requires python 3 to run       
 * Uses Pickle version 2 for pickling for maximum compatibility       
