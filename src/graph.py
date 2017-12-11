@@ -164,6 +164,8 @@ def draw_graph(G) :
                        node_size=10,
                    alpha=0.8)
 
+
+
     nx.draw_networkx_nodes(G,pos,
                        nodelist= [x for x in G.nodes() if G.nodes[x]['type'] == "game"],
                        node_color='g',

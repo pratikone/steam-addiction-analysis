@@ -42,8 +42,12 @@ def draw_graph(G) :
 
 def show_bargraph(G) :
     playtime_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "user" and G.nodes[x]['playtime'] < 200000 ] #more is an abberation in dataset
-    plt.plot( sorted(playtime_list))
-    plt.ylabel('playing mins')
+    
+    plt.hist(sorted(playtime_list), bins=10)
+
+    #plt.plot( sorted(playtime_list))
+    plt.xlabel('playing mins')
+    plt.ylabel('number of users')
     plt.title("Users")
     plt.show()
     playtime_game_list = [ G.nodes[x]['playtime'] for x in G.nodes() if G.nodes[x]['type'] == "game" ]
