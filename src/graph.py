@@ -15,6 +15,8 @@ def create_graph( given_list_tuple, friends = None ) :
     for given_list in given_list_tuple :
         for entry in given_list :
             user = str(entry[0])+"u"
+            # if user == "14698u" :
+                # print(entry)
             if user not in G.nodes() :
                 G.add_node(user, type="user", playtime = 0)
 
@@ -96,17 +98,19 @@ def stats( G, partition) :
     for node in G.nodes() :
         if G.nodes[node]['type'] == 'game' :
             genre = G.nodes[node]['genre'] 
-            temp_game_genre_list.append(genre )
-            if genre in avg_playtime : 
-                avg_playtime[genre] +=  G.nodes[node]['playtime']
-                avg_playtime[genre] =  round(avg_playtime[genre] / 2.0)
-            else :
-                avg_playtime[genre] = 0
+            if genre is not None :
+                genre_list =  genre.split(",")
+                temp_game_genre_list += genre_list
+                for g in genre_list :
+                    if g in avg_playtime : 
+                        avg_playtime[g] +=  G.nodes[node]['playtime']
+                        avg_playtime[g] =  round(avg_playtime[g] / 2.0)
+                    else :
+                        avg_playtime[g] = 0
 
     c = Counter(temp_game_genre_list)
     print(c.most_common())
     print(avg_playtime)
-
 
 
 
@@ -173,6 +177,47 @@ def draw_graph(G) :
                        width=0.2,alpha=0.5,edge_color='k')
     plt.show()
 
+DIR = "C:/Users/Pratik Anand/Desktop/dataset10000"
+def read_gamefile() :
+    user_games_list = []
+    user_set = set()
+    game_genre = {}
+    with open(DIR+"/game_matrix.txt") as f :
+        for line in f :
+            user, game , playtime = line.strip().split()
+            user_games_list.append([user.strip(), game.strip(), playtime.strip()])
+            game_genre[game] = None
+            user_set.add(user)
+
+    
+    with open(DIR + "/game_names.txt") as f :  
+        i = 0
+        for line in f :
+            i = i+1
+            game_genre[str(i)] = line.strip()
+
+    # print(game_genre)
+    for entry in user_games_list :
+       game = entry[1]
+       entry.append( game_genre[game])
+    #print(user_games_list)
+    print(len(user_set))
+
+    return user_games_list
+
+def read_groupmatrix() :
+    user_group_list = []
+    user_set = set()
+    with open(DIR + "/group_matrix.txt") as f :
+        for line in f :
+            user, group = map(  lambda x: x.strip()  , line.split())
+            user_group_list.append([user, group, 1])
+            user_set.add(user)
+    # print(user_group_list)   
+    print(len(user_set))
+    return user_group_list
+
+
 
 
 
@@ -210,21 +255,82 @@ def init_2() :
     # print(sorted(nx.triangles(G).values()))
 
 
-def init_3() :
-    final_lists = sql_fetch.init()
-    data = create_list_user_group_game_playtime( final_lists )
-    achaar_it(data, "user_data.p")
-    friends = sql_fetch.find_friends_from_user_groups(final_lists[0])
-    achaar_it(friends, "user_friends.p")
+#def init_3() :
+    # final_lists = sql_fetch.init()
+    # data = create_list_user_group_game_playtime( final_lists )
+    # achaar_it(data, "user_data.p")
+    # friends = sql_fetch.find_friends_from_user_groups(final_lists[0])
+    # achaar_it(friends, "user_friends.p")
 
-    data = unachaar_it("user_data.p")
-    friends = unachaar_it("user_friends.p")
-    G = create_graph(data, friends)
+    # data = unachaar_it("user_data.p")
+    # friends = unachaar_it("user_friends.p")
+    # G = create_graph(data, friends)
+    # partition = community.best_partition(G)  # compute communities
+    # stats(G, partition)
+    # #create_graph_partition_viz(G, partition)
+    # show_bargraph(G)
+
+def init_4() :
+    data =   [read_groupmatrix(), read_gamefile()]
+    G = create_graph(data, None)
     partition = community.best_partition(G)  # compute communities
     stats(G, partition)
-    #create_graph_partition_viz(G, partition)
+    # #create_graph_partition_viz(G, partition)
+    show_bargraph(G)
+
+    # user_playtime = {}
+    # final_list = []
+    # for x in G.nodes() :
+    #     if G.nodes[x]['type'] == "user" :
+    #         user_playtime[ x[:-1] ] = G.nodes[x]['playtime']
+    # for key, value in sorted(user_playtime.items(), key = lambda item: item[1], reverse =  True):
+    #     final_list.append( [key, value] )
+    # f = open('user_playtime', 'w')
+    # for entry in final_list :
+    #     f.write('{} {}\n'.format( entry[0], entry[1] ))  # python will convert \n to os.linesep
+    # f.close()
+   
+
+    # group_playtime = {}
+    # final_list = []
+    # for x in G.nodes() :
+    #     if G.nodes[x]['type'] == "group" :
+    #         total_playtime = 0
+    #         for n in G.neighbors(x) :
+    #             if G.nodes[n]['type'] == "user" :
+    #                 total_playtime += G.nodes[n]['playtime'] 
+    #         group_playtime[ x[:-1] ] = total_playtime
+    # for key, value in sorted(group_playtime.items(), key = lambda item: item[1], reverse =  True):
+    #     final_list.append( [key, value] )
+    # f = open('group_playtime', 'w')
+    # for entry in final_list :
+    #     f.write('{} {}\n'.format( entry[0], entry[1] ))  # python will convert \n to os.linesep
+    # f.close()
+
+    # game_playtime = {}
+    # final_list = []
+    # for x in G.nodes() :
+    #     if G.nodes[x]['type'] == "game" :
+    #         game_playtime[ x[:-1] ] = G.nodes[x]['playtime']
+    # for key, value in sorted(game_playtime.items(), key = lambda item: item[1], reverse =  True):
+    #     final_list.append( [key, value] )
+    # f = open('game_playtime', 'w')
+    # for entry in final_list :
+    #     f.write('{} {}\n'.format( entry[0], entry[1] ))  # python will convert \n to os.linesep
+    # f.close()
+
+
+   
+    
+
+
+
+
+
+
 
 
 if __name__ == '__main__' :
-    init_3()
+    init_4()
+  
     

@@ -46,12 +46,11 @@ def fetch_user_group_games_playtime(connection) :
     
 
     #get users
-    cur.execute(" SELECT steamid from steam.player_summaries limit 1000, 12500 ;")
+    cur.execute(" SELECT steamid from steam.player_summaries limit 1000, 25000 ;")
     op = cur.fetchall()
     user_list = []
     for entry in op :    
       user_list.append(entry[0])
-
     #get groups of those users
     user_groups = []
     for user in user_list :
