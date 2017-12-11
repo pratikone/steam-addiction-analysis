@@ -1,5 +1,6 @@
 # Recommending Games, Communities and estimating Gameplay time in Gaming Social Network : A case study of Steam
 In this paper, we propose a scalable method for jointly recommending( link prediction) games, users and communities in the context of social gaming network,specifically focusing on the Steam gaming network. This joint framework also allows us to estimate interesting patterns in the Steam graph like which users are likely to be heavy or addicted users based on the communities, friendships and the subset of the games they play, which users in this community are likely to play this  game.
+[Paper](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/LOKEGAONKAR-ANAND-final.pdf)
 
 ### Authors : Pratik Anand (@pratikone) and Sanket Lokegaonkar (@sloke)
 
