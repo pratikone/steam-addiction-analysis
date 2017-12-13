@@ -18,9 +18,10 @@ Given this problem formulation, our objective in this paper is to develop a mode
 ![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/pca_users.png "PCA - Users")    
 ![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/pca_games.png "PCA - Games")    
 ![](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/pca_communities.png "PCA - Communities")        
-### How to run
+### How to produce the network 
 * Requires python 3 to run       
 * Uses Pickle version 2 for pickling for maximum compatibility       
+* Install the SQL database as mentioned below    
 Run cmd : ``` python src/graph.py ```      
 SQL parameters can be changed in ```src/sql_fetch.py```      
 Visualization code is in ```src/visualization.py```      
@@ -37,7 +38,7 @@ Visualization code is in ```src/visualization.py```
 1. Download the steam.sql from the data link
 2. Install MySQL instance and load the database too it
 3. Change user-name, password to the assigned database credentials
-4. Run ```python extract.py sample_size``` Creates multiple files. Current dir becomes dataset_path.
+4. Run ```python model/extract.py sample_size``` Creates multiple files. Current dir becomes dataset_path.
 5. Change the directory paths in train.sh
-5. Run ```python script.py --dataset dataset_path --max_iter maximum_iterations --setting model_setting --rank rank ``` .
+5. Run ```python model/script.py --dataset dataset_path --max_iter maximum_iterations --setting model_setting --rank rank ``` .
    Results should contain the MSE Error and the Ranking Metrics output.

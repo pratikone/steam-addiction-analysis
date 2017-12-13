@@ -257,20 +257,20 @@ def init_2() :
     # print(sorted(nx.triangles(G).values()))
 
 
-#def init_3() :
-    # final_lists = sql_fetch.init()
-    # data = create_list_user_group_game_playtime( final_lists )
-    # achaar_it(data, "user_data.p")
-    # friends = sql_fetch.find_friends_from_user_groups(final_lists[0])
-    # achaar_it(friends, "user_friends.p")
+def init_3() :
+    final_lists = sql_fetch.init()
+    data = create_list_user_group_game_playtime( final_lists )
+    achaar_it(data, "user_data.p")
+    friends = sql_fetch.find_friends_from_user_groups(final_lists[0])
+    achaar_it(friends, "user_friends.p")
 
-    # data = unachaar_it("user_data.p")
-    # friends = unachaar_it("user_friends.p")
-    # G = create_graph(data, friends)
-    # partition = community.best_partition(G)  # compute communities
-    # stats(G, partition)
-    # #create_graph_partition_viz(G, partition)
-    # show_bargraph(G)
+    data = unachaar_it("user_data.p")
+    friends = unachaar_it("user_friends.p")
+    G = create_graph(data, friends)
+    partition = community.best_partition(G)  # compute communities
+    stats(G, partition)
+    #create_graph_partition_viz(G, partition)
+    show_bargraph(G)
 
 def init_4() :
     data =   [read_groupmatrix(), read_gamefile()]
@@ -333,6 +333,6 @@ def init_4() :
 
 
 if __name__ == '__main__' :
-    init_4()
+    init_3()  #fetches from SQL server
   
     
