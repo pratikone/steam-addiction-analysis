@@ -1,5 +1,10 @@
 # Recommending Games, Communities and estimating Gameplay time in Gaming Social Network : A case study of Steam
-In this paper, we propose a scalable method for jointly recommending( link prediction) games, users and communities in the context of social gaming network,specifically focusing on the Steam gaming network. This joint framework also allows us to estimate interesting patterns in the Steam graph like which users are likely to be heavy or addicted users based on the communities, friendships and the subset of the games they play, which users in this community are likely to play this  game.
+Gaming communities like Steam are one of the less-studied social networks. We intend to study this network from the
+point of relationship between friendship, communities and game ownership having an influence on addiction of gam-
+ing and ability to make predictions of game ownership and playtime, leading to prediction of addiction. In this project, We propose JFactor, a joint matrix factorization approach, which predicts game-play times and recommended communities for users jointly for the Steam network.We optimize our method by coupling the factorization from
+the derived community and game co-occurrence matrix. We perform extensive experiments to compare our proposed
+joint matrix factorization model and report findings in the paper.
+
 [Paper](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/LOKEGAONKAR-ANAND-final.pdf)     
 [Slides](https://github.com/pratikone/steam-addiction-analysis/blob/master/doc/slides.pdf)
 
