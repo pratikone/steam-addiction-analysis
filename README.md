@@ -24,3 +24,20 @@ Given this problem formulation, our objective in this paper is to develop a mode
 Run cmd : ``` python src/graph.py ```      
 SQL parameters can be changed in ```src/sql_fetch.py```      
 Visualization code is in ```src/visualization.py```      
+
+### How to train your dragon(model)!
+#### Requirements
+* Requires python 2
+* Pickle version 2
+* Matlab
+* [TensorLab 2016 Version](https://www.tensorlab.net)
+* [Data](https://steam.internet.byu.edu)
+
+#### Steps
+1. Download the steam.sql from the data link
+2. Install MySQL instance and load the database too it
+3. Change user-name, password to the assigned database credentials
+4. Run ```python extract.py sample_size``` Creates multiple files. Current dir becomes dataset_path.
+5. Change the directory paths in train.sh
+5. Run ```python script.py --dataset dataset_path --max_iter maximum_iterations --setting model_setting --rank rank ``` .
+   Results should contain the MSE Error and the Ranking Metrics output.
